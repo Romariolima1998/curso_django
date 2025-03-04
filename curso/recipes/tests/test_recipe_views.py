@@ -46,9 +46,42 @@ class Recipe_view_test(RecipeTestBase):
         self.assertEqual(response.status_code, 404)
 
     def test_recipe_home_loads_recipes(self):
-        
-
+        self.make_recipe()
         response = self.client.get(reverse('recipes:home'))
         response_content = response.content.decode('utf-8')
 
         self.assertIn('recipe title', response_content)
+
+    def test_recipe_category_loads_recipes(self):
+        self.make_recipe()
+        response = self.client.get(reverse('recipes:category', args=(1,)))
+        response_content = response.content.decode('utf-8')
+
+        self.assertIn('recipe title', response_content)
+
+    def test_recipe_detail_loads_correct_recipe(self):
+        self.make_recipe()
+        response = self.client.get(reverse('recipes:recipe', args=(1,)))
+        response_content = response.content.decode('utf-8')
+
+        self.assertIn('recipe title', response_content)
+
+    def test_recipe_home_not_loads_recipes_if_is_published_false(self):
+        self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:home'))
+        response_content = response.content.decode('utf-8')
+
+        self.assertNotIn('recipe title', response_content)
+
+    def test_recipe_category_not_loads_recipes_if_is_published_false(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:category', args=(recipe.category.id,)))
+        response_content = response.content.decode('utf-8')
+
+        self.assertNotIn('recipe title', response_content)
+
+    def test_recipe_detail_not_loads_correct_recipe_if_is_published_false(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:recipe', args=(recipe.id,)))
+
+        self.assertEqual(response.status_code, 404)

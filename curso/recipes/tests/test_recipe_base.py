@@ -4,10 +4,10 @@ from recipes.models import Category, Recipe, User
 
 
 class RecipeTestBase(TestCase):
-    
+
     def make_category(self, name='category'):
         return Category.objects.create(name=name)
-    
+
     def make_author(
             self,
             first_name='user',
@@ -65,7 +65,7 @@ class RecipeTestBase(TestCase):
             category=self.make_category(name='test default category'),
             title='recipe title',
             description='recipe description',
-            slug='recipe-slug',
+            slug='recipe-slug-no-defalt',
             preparation_time=10,
             preparation_time_unit='minutos',
             servings=5,

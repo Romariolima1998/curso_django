@@ -40,10 +40,10 @@ class RecipeSearchviewtest(RecipeTestBase):
             title=title2,
             author_data={'username': 'two'}
             )
-        
+
         response1 = self.client.get(reverse('recipes:search') + f'?q={title1}')
         response2 = self.client.get(reverse('recipes:search') + f'?q={title2}')
-        response_both = self.client.get(reverse('recipes:search') + f'?q=this')
+        response_both = self.client.get(reverse('recipes:search') + '?q=this')
 
         self.assertIn(recipe1, response1.context['recipes'])
         self.assertNotIn(recipe2, response1.context['recipes'])

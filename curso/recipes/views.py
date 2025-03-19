@@ -3,6 +3,7 @@ import os
 from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.http import Http404
 from django.db.models import Q
+# from django.contrib import messages
 
 from recipes.models import Recipe
 from utils.pagination import make_pagination
@@ -38,7 +39,7 @@ def category(request, id):
         category__id=id,
         is_published=True
         ).order_by('-id'))
-    
+
     page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
 
     context = {
@@ -62,7 +63,7 @@ def search(request):
         ),
         is_published=True
         ).order_by('-id')
-    
+
     page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
 
     return render(request, 'recipes/pages/search.html', {

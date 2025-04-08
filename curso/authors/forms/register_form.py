@@ -1,27 +1,7 @@
-import re
-
 from django import forms
 from django.contrib.auth.models import User
 
-
-def add_attr(field, attr_name, attr_new_val):
-    existing_attrs = field.widget.attrs.get(attr_name, '')
-    field.widget.attrs[attr_name] = f'{existing_attrs} {attr_new_val}'.strip()
-
-
-def add_placeholder(field, placeholder):
-    field.widget.attrs['placeholder'] = placeholder
-
-
-def strong_password(password):
-    regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$')
-
-    if not regex.match(password):
-        raise forms.ValidationError(
-            ('Your password must contain at least 8 characters, '
-             'including at least one uppercase letter, one lowercase letter and one number.'),
-            code='invalid'
-        )
+from utils.django_forms import add_placeholder, strong_password
 
 
 class RegisterForm(forms.ModelForm):
@@ -32,11 +12,24 @@ class RegisterForm(forms.ModelForm):
         add_placeholder(self.fields['first_name'], 'your first name')
         add_placeholder(self.fields['last_name'], 'your last name')
 
+    first_name = forms.CharField(
+        label='First Name',
+        required=True,
+        error_messages={'required': 'Campo obrigatório.'},
+    )
+
+    email = forms.EmailField(
+        label='Email',
+        required=True,
+        error_messages={'required': 'Campo obrigatório.'},
+        help_text='the email must be valid'
+    )
+
     password = forms.CharField(
         label='Password',
         required=True,
         widget=forms.PasswordInput(attrs={'placeholder': 'Your password'}),
-        error_messages={'required': 'Password is required'},
+        error_messages={'required': 'Campo obrigatório.'},
         help_text=(
             'Your password must contain at least 8 characters, '
             'including at least one uppercase letter, one lowercase letter and one number.'
@@ -47,6 +40,7 @@ class RegisterForm(forms.ModelForm):
     password2 = forms.CharField(
         label='Confirm Password',
         required=True,
+        error_messages={'required': 'Campo obrigatório.'},
         widget=forms.PasswordInput(attrs={'placeholder': 'repeat your password'}),
     )
 
@@ -59,13 +53,16 @@ class RegisterForm(forms.ModelForm):
             'password',
             'email',
         ]
-        widgets = {
-            'password': forms.PasswordInput(attrs={'placeholder': 'Password'}),
-        }
+        # widgets = {
+        #     'password': forms.PasswordInput(attrs={'placeholder': 'Password'}),
+        # }
         # exclude = ['first_name']
         # labels = {'first_name': 'Nome',}
-        # help_texts = {'first_name': 'apenas primeiro nome',}
-        # error_messages = {'first_name': {'required': 'Campo obrigatório',}} invalid, required, disabled, readonly 
+        # help_texts = {'email': 'the email must be valid'}
+    
+        error_messages = {
+            'username': {'required': 'Campo obrigatório.'},
+            } # invalid, required, disabled, readonly 
         # widgets = {'first_name': forms.TextInput(attrs={'class': 'form-control' attr1='value1', 'attr2': 'value2'})}
 
     # def clean_password(self):
@@ -73,6 +70,12 @@ class RegisterForm(forms.ModelForm):
     #     if len(password) < 8:
     #         raise forms.ValidationError('Password must contain at least 8 characte rs')
     #     return password
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Email already exists', code='invalid')
+        return email
     
     def clean(self):
         cleaned_data = super().clean()

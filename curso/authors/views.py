@@ -33,8 +33,9 @@ def register_create(request):
         user.save()
         del (request.session['register_form_data'])
         messages.success(request, 'User created successfully')
+        return redirect('authors:login')
 
-    return redirect('authors:login')
+    return redirect('authors:register')
 
 
 def login_view(request):
@@ -69,8 +70,14 @@ def login_create(request):
 
 @login_required(login_url='authors:login', redirect_field_name='next')
 def logout_view(request):
+    if request.method != 'POST':
+        raise Http404()
+
+    if request.POST.get('username') != request.user.username:
+        messages.error(request, 'Invalid credentials')
+        return redirect('authors:login')
 
     logout(request)
     messages.success(request, 'Logout successfully')
- 
+
     return redirect('authors:login')

@@ -60,6 +60,7 @@ def login_create(request):
         if user_authenticated:
             login(request, user_authenticated)
             messages.success(request, 'Login successfully')
+            return redirect(request.GET.get('next', 'authors:dashboard'))
         else:
             messages.error(request, 'Invalid credentials')
 
@@ -81,3 +82,10 @@ def logout_view(request):
     messages.success(request, 'Logout successfully')
 
     return redirect('authors:login')
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashboard(request):
+    return render(request, 'authors/pages/dashboard.html', {
+
+    })

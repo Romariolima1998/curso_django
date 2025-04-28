@@ -423,4 +423,9 @@ h1,h2,h3,h4,h5,h6 {
         grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
     }
 }
+
+/* authors */
+.login-message {
+    margin: 1rem 0;
+}
   

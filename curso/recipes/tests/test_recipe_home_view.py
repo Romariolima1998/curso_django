@@ -9,7 +9,7 @@ class RecipeHomeviewtest(RecipeTestBase):
     def test_recipe_home_views_function_is_correct(self):
         view = resolve(reverse('recipes:home'))
 
-        self.assertIs(view.func, views.home)
+        self.assertIs(view.func.view_class, views.RecipeListView)
 
     def test_recipe_home_return_status_code_200(self):
         response = self.client.get(reverse('recipes:home'))
@@ -45,7 +45,7 @@ class RecipeHomeviewtest(RecipeTestBase):
      
         self.make_recipe_in_batch(9)
 
-        with patch('recipes.views.PER_PAGES', 3):
+        with patch('recipes.views.recipe_view.PER_PAGES', 3):
 
             response = self.client.get(reverse('recipes:home'))
             recipes = response.context['recipes']

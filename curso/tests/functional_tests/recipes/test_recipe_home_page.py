@@ -43,7 +43,7 @@ class RecipeHomePageFunctionalTest(RecipeBaseFunctionalTest):
             body.text
         )
 
-    @patch('recipes.views.PER_PAGES', new=2)
+    @patch('recipes.views.recipe_view.PER_PAGES', new=2)
     def test_recipe_home_page_pagination(self):
         # Given I have a home page with 20 recipes
         self.make_recipe_in_batch()

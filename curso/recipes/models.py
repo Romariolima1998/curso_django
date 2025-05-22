@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.text import slugify
+from django.contrib.contenttypes.fields import GenericRelation
+
+from tag.models import Tag
+
 
 # Create your models here.
 
@@ -11,6 +15,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RecipeManager(models.Manager):
+    def get_published(self):
+        return self.filter(is_published=True)
 
 
 class Recipe(models.Model):
@@ -29,6 +38,7 @@ class Recipe(models.Model):
     cover = models.ImageField(upload_to='recipes/covers/%Y/%m/%d/', null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    tags = GenericRelation(Tag, related_query_name='recipes')
 
     def __str__(self):
         return self.title

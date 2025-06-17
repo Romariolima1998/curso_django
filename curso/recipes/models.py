@@ -35,10 +35,18 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(default=False)
-    cover = models.ImageField(upload_to='recipes/covers/%Y/%m/%d/', null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    cover = models.ImageField(
+        upload_to='recipes/covers/%Y/%m/%d/',
+        null=True, blank=True
+        )
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True,
+        blank=True, default=None
+        )
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    tags = GenericRelation(Tag, related_query_name='recipes')
+    tags = models.ManyToManyField(Tag, blank=True)
+
+    #tags = GenericRelation(Tag, related_query_name='recipes')
 
     def __str__(self):
         return self.title

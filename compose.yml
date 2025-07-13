@@ -1,0 +1,30 @@
+
+
+services:
+  web:
+    build: .
+    container_name: django_app_receitas
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    restart: always  # <-- isso faz ele subir sozinho no boot
+
+  db:
+    image: postgres:15
+    container_name: postgres_db_receitas
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: curso_db
+      POSTGRES_USER: romario
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+
+    restart: always  # <-- banco também sobe no boot
+
+volumes:
+  postgres_data:

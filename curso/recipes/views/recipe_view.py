@@ -5,10 +5,13 @@ from django.http import Http404
 from django.db.models import Q
 # from django.contrib import messages
 from django.views.generic import ListView, DetailView
+from django.utils import translation
+
 
 from recipes.models import Recipe
 from tag.models import Tag
 from utils.pagination import make_pagination
+from django.utils.translation import gettext as _
 
 # Create your views here.
 PER_PAGES = int(os.environ.get('PER_PAGES', 6))
@@ -28,15 +31,20 @@ class RecipeListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.filter(is_published=True)
-        queryset = queryset.prefetch_related('tags')
+        queryset = queryset.prefetch_related('tags', 'author__profile')
         return queryset
         # return Recipe.objects.filter(is_published=True).order_by('-id')
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        page_obj, pagination_range = make_pagination(self.request, context.get('recipes'), PER_PAGES)
+        page_obj, pagination_range = make_pagination(
+            self.request, context.get('recipes'), PER_PAGES
+            )
+
+        html_language = translation.get_language()
         context['pagination_range'] = pagination_range
         context['recipes'] = page_obj
+        context['html_language'] = html_language
         return context
 
 
@@ -59,7 +67,9 @@ class RecipeCategoryView(RecipeListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['title'] = f'{context.get("recipes")[0].category.name} - category |'
+        category_translation = _('category')
+        context['title'] = f'{context.get("recipes")[0].category.name} -' \
+            f' {category_translation} |'
         return context
 
 

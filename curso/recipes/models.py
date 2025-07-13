@@ -1,13 +1,36 @@
+import os
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.text import slugify
-from django.contrib.contenttypes.fields import GenericRelation
+# from django.contrib.contenttypes.fields import GenericRelation
+from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+from PIL import Image
 
 from tag.models import Tag
 
 
-# Create your models here.
+def resize_image(image, new_width=850):
+    image_full_path = os.path.join(settings.MEDIA_ROOT, image.name)
+
+    image_pillow = Image.open(image_full_path)
+    original_width, original_height = image_pillow.size
+
+    if original_width <= new_width:
+        image_pillow.close()
+        return
+
+    new_height = round((new_width * original_height) / original_width)
+
+    new_image = image_pillow.resize((new_width, new_height), Image.LANCZOS)\
+
+    new_image.save(
+        image_full_path,
+        optimize=True,
+        quality=60
+    )
 
 
 class Category(models.Model):
@@ -23,7 +46,7 @@ class RecipeManager(models.Manager):
 
 
 class Recipe(models.Model):
-    title = models.CharField(max_length=65)
+    title = models.CharField(max_length=65, verbose_name=_('title'))
     description = models.CharField(max_length=165)
     slug = models.SlugField(unique=True)
     preparation_time = models.IntegerField()
@@ -44,7 +67,7 @@ class Recipe(models.Model):
         blank=True, default=None
         )
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, default='')
 
     #tags = GenericRelation(Tag, related_query_name='recipes')
 
@@ -57,4 +80,10 @@ class Recipe(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
+
+        _super = super().save(*args, **kwargs)
+
+        if self.cover:
+            resize_image(self.cover)
+
+        return _super

@@ -1,3 +1,5 @@
+  {% load i18n %}
+  
   <div class="recipe recipe-list-item">
 
     {% if recipe.cover %}
@@ -20,10 +22,20 @@
         <span class="recipe-author-item">
             <i class="fas fa-user"></i> 
             {% if recipes.author %}
+
+                {% if recipe.author.profile %}
+                    <a href="{% url "authors:profile" recipe.author.profile.id %}">
+                {% endif %}
+
                 {% if recipe.author.first_name %}
                     {{ recipe.author.first_name}} {{recipe.author.last_name}}
+
                 {% else %}
                     {{recipe.author.username}}
+                {% endif %}
+
+                {% if recipe.author.profile %}
+                        </a>
                 {% endif %}
             {% else %}
                 Desconhecido
@@ -51,13 +63,13 @@
 
     <div class="recipe-meta-container">
         <div class="recipe-meta recipe-preparation">
-            <h3 class="recipe-meta-title"><i class="fas fa-stopwatch"></i> Preparo</h3>
+            <h3 class="recipe-meta-title"><i class="fas fa-stopwatch"></i> {% translate "Preparation" %}</h3>
             <div class="recipe-meta-text">
                 {{recipe.preparation_time}} {{recipe.preparation_time_unit}}
             </div>
         </div>
         <div class="recipe-meta recipe-servings">
-            <h3 class="recipe-meta-title"><i class="fas fa-pizza-slice"></i> Porções</h3>
+            <h3 class="recipe-meta-title"><i class="fas fa-pizza-slice"></i> {% translate "Servings" %}</h3>
             <div class="recipe-meta-text">
                 {{recipe.servings}} {{recipe.servings_unit}}
             </div>
